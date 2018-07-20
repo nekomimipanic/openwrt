@@ -141,6 +141,11 @@ proto_map_setup() {
 	    json_close_object
 	  else
 	    for portset in $(eval "echo \$RULE_${k}_PORTSETS"); do
+	      if [ $LEGACY = "1" ]; then
+	        iptables -t nat -A POSTROUTING -p icmp -m connlimit --connlimit-upto 16 --connlimit-saddr --connlimit-mask 16 -o map-$cfg -j SNAT --to-source $(eval "echo \$RULE_${k}_IPV4ADDR"):$portset
+	        iptables -t nat -A POSTROUTING -p udp -m connlimit --connlimit-upto 16 --connlimit-saddr --connlimit-mask 16 -o map-$cfg -j SNAT --to-source $(eval "echo \$RULE_${k}_IPV4ADDR"):$portset
+	        iptables -t nat -A POSTROUTING -p tcp -m connlimit --connlimit-upto 16 --connlimit-saddr --connlimit-mask 16 -o map-$cfg -j SNAT --to-source $(eval "echo \$RULE_${k}_IPV4ADDR"):$portset
+	      else	     
               for proto in icmp tcp udp; do
 	        json_add_object ""
 	          json_add_string type nat
@@ -152,6 +157,7 @@ proto_map_setup() {
                   json_add_string snat_port "$portset"
 	        json_close_object
               done
+	      fi
 	    done
 	  fi
 	  if [ "$type" = "map-t" ]; then
