@@ -142,9 +142,9 @@ proto_map_setup() {
 	  else
 	    for portset in $(eval "echo \$RULE_${k}_PORTSETS"); do
 	      if [ $LEGACY = "1" ]; then
-	        iptables -t nat -A POSTROUTING -p icmp -m connlimit --connlimit-upto 16 --connlimit-saddr --connlimit-mask 16 -o map-$cfg -j SNAT --to-source $(eval "echo \$RULE_${k}_IPV4ADDR"):$portset
-	        iptables -t nat -A POSTROUTING -p udp -m connlimit --connlimit-upto 16 --connlimit-saddr --connlimit-mask 16 -o map-$cfg -j SNAT --to-source $(eval "echo \$RULE_${k}_IPV4ADDR"):$portset
-	        iptables -t nat -A POSTROUTING -p tcp -m connlimit --connlimit-upto 16 --connlimit-saddr --connlimit-mask 16 -o map-$cfg -j SNAT --to-source $(eval "echo \$RULE_${k}_IPV4ADDR"):$portset
+	        iptables -t nat -A POSTROUTING -p icmp -m connlimit --connlimit-daddr --connlimit-upto $((($portset)*-1+1)) -o map-$cfg -j SNAT --to-source $(eval "echo \$RULE_${k}_IPV4ADDR"):$portset
+	        iptables -t nat -A POSTROUTING -p tcp -m connlimit --connlimit-daddr --connlimit-upto $((($portset)*-1+1)) -o map-$cfg -j SNAT --to-source $(eval "echo \$RULE_${k}_IPV4ADDR"):$portset
+	        iptables -t nat -A POSTROUTING -p udp -m connlimit --connlimit-daddr --connlimit-upto $((($portset)*-1+1)) -o map-$cfg -j SNAT --to-source $(eval "echo \$RULE_${k}_IPV4ADDR"):$portset
 	      else	     
               for proto in icmp tcp udp; do
 	        json_add_object ""
